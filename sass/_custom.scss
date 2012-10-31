@@ -1,0 +1,68 @@
+$base: 11.25px;
+$img_padding: 0px;
+
+.hidden {
+    display: none;
+}
+
+.top-bar {
+    margin-bottom: $img_padding;
+
+    ul > li.has-button a.button {
+        margin: auto;
+    }
+    img {
+        display: block;
+    }
+    .right {
+        margin-right: $base;
+    }
+    .logo, .logo img {
+        height: 100%;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .top-bar {
+        margin-bottom: $img_padding;
+
+        ul li.has-button {
+            padding: 0;
+        }
+    }
+}
+
+#loading {
+    .columns {
+        text-align: center;
+        padding: $base*4 0;
+    }
+}
+
+#images {
+    padding-top: 3.214em;
+
+    .column {
+        padding: 0 8px;
+    }
+}
+.block-grid {
+    &.one-up, .two-up, &.three-up, &.four-up, &.five-up, &.six-up, &.seven-up, &.eight-up, &.nine-up, &.ten-up, &.eleven-up, &.twelve-up {
+        li { padding: 0; }
+    }
+}
+.block-grid img {
+    display: block;
+    width: 200px;
+    height: auto;
+}
+
+
+
+// We aren't saving any bandwidth, but at least it looks nice.
+@media only screen and (-moz-min-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+    #loading img {
+        height: 64px;
+        width: 64px;
+    }
+}

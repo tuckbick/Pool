@@ -1,0 +1,12 @@
+{
+  "name": "pool",
+  "description": "pool your photos",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.x",
+    "socket.io": ">= 0.9",
+    "hjs": ">= 0.0.4",
+    "delivery": ">= 0.0.2"
+  }
+}
