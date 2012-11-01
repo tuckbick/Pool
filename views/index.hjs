@@ -30,22 +30,22 @@
 <body>
     <div id="content">
         <div class="row" id="header">
-                <nav class="top-bar fixed">
-                    <ul>
-                        <li class="name">
-                            <h1>{{ title }}</h1>
+            <nav class="top-bar fixed">
+                <ul>
+                    <li class="name">
+                        <h1>{{ title }}</h1>
+                    </li>
+                </ul>
+                <section>
+                    <ul class="right">
+                        <li class="divider show-for-medium-and-up"></li>
+                        <li>
+                            <button id="add-photos" class="bar-btn-large" href="#">Add Photos</button>
+                            <input id="file-input" class="hidden" type="file" name="file-photos[]" accept="image/*" multiple />
                         </li>
                     </ul>
-                    <section>
-                        <ul class="right">
-                            <li class="divider show-for-medium-and-up"></li>
-                            <li>
-                                <button id="add-photos" class="bar-btn-large" href="#">Add Photos</button>
-                                <input id="file-input" class="hidden" type="file" name="file-photos[]" accept="image/*" multiple />
-                            </li>
-                        </ul>
-                    </section>
-                </nav>
+                </section>
+            </nav>
         </div>
         <div class="row" id="loading">
             <div class="twelve columns">
@@ -57,7 +57,7 @@
     <script id="images-template" type="text/template">
         <div class="row" id="images">
             <div class="column">
-                <ul class="block-grid eight-up mobile-four-up" id="images-list">
+                <ul class="block-grid eight-up mobile-five-up" id="images-list">
                     <% _.each(images, function(src) { %>
                     <li <%= typeof blank != 'undefined' ? 'class="blank"' : '' %>><img src="<%= src %>" /></li>
                     <% }) %>
