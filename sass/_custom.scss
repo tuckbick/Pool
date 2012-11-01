@@ -8,17 +8,25 @@ $img_padding: 0px;
 .top-bar {
     margin-bottom: $img_padding;
 
-    ul > li.has-button a.button {
-        margin: auto;
+    h1 {
+        color: #E6E6E6;
+        font-size: 24px;
+        padding: 0 15px;
+        line-height: 45px;
     }
-    img {
-        display: block;
-    }
-    .right {
-        margin-right: $base;
-    }
-    .logo, .logo img {
-        height: 100%;
+}
+
+.bar-btn-large {
+    color: #E6E6E6;
+    background: none;
+    border: 0;
+    height: 45px;
+    padding: 0 20px;
+    font-size: 14px;
+
+    &:hover {
+        background-color: #000;
+        color: #FFF;
     }
 }
 
@@ -32,20 +40,19 @@ $img_padding: 0px;
     }
 }
 
-#loading {
-    .columns {
-        text-align: center;
-        padding: $base*4 0;
-    }
+#loading .columns {
+    text-align: center;
+    padding: $base*4 0;
 }
 
-#images {
+#images .column {
+    padding: 0 8px;
+}
+
+#loading, #images {
     padding-top: 3.214em;
-
-    .column {
-        padding: 0 8px;
-    }
 }
+
 .block-grid {
     &.one-up, .two-up, &.three-up, &.four-up, &.five-up, &.six-up, &.seven-up, &.eight-up, &.nine-up, &.ten-up, &.eleven-up, &.twelve-up {
         li { padding: 0; }
@@ -56,7 +63,6 @@ $img_padding: 0px;
     width: 200px;
     height: auto;
 }
-
 
 
 // We aren't saving any bandwidth, but at least it looks nice.

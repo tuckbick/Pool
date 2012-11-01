@@ -17,13 +17,11 @@
 
     <title>Welcome to {{ title }}</title>
 
-    <!-- Included CSS Files -->
     <link rel="stylesheet" href="stylesheets/style.css">
 
     <script src="javascripts/foundation/modernizr.foundation.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
-    <!-- IE Fix for HTML5 Tags -->
     <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -32,26 +30,23 @@
 <body>
     <div id="content">
         <div class="row" id="header">
-            <nav class="top-bar fixed">
-                <ul>
-                    <li class="logo"><img src="images/logo.png" /></li>
-                    <li class="name">
-                        <h1>
-                            <a href="#">{{ title }}</a>
-                        </h1>
-                    </li>
-                </ul>
-                <section>
-                    <ul class="right">
-                        <li class="has-button">
-                            <button id="add-photos" class="small button" href="#">Add Photos</button>
-                            <input id="file-input" class="hidden" type="file" name="file-photos[]" accept="image/*" multiple />
+                <nav class="top-bar fixed">
+                    <ul>
+                        <li class="name">
+                            <h1>{{ title }}</h1>
                         </li>
                     </ul>
-                </section>
-            </nav>
+                    <section>
+                        <ul class="right">
+                            <li class="divider show-for-medium-and-up"></li>
+                            <li>
+                                <button id="add-photos" class="bar-btn-large" href="#">Add Photos</button>
+                                <input id="file-input" class="hidden" type="file" name="file-photos[]" accept="image/*" multiple />
+                            </li>
+                        </ul>
+                    </section>
+                </nav>
         </div>
-
         <div class="row" id="loading">
             <div class="twelve columns">
                 <img src="images/loading.gif" />
@@ -59,19 +54,17 @@
         </div>
     </div>
 
-    <div id="templates">
-        <script id="images-template" type="text/template">
-            <div class="row" id="images">
-                <div class="column">
-                    <ul class="block-grid eight-up mobile-four-up" id="images-list">
-                        <% _.each(images, function(src) { %>
-                        <li><img src="<%= src %>" /></li>
-                        <% }) %>
-                    </ul>
-                </div>
+    <script id="images-template" type="text/template">
+        <div class="row" id="images">
+            <div class="column">
+                <ul class="block-grid eight-up mobile-four-up" id="images-list">
+                    <% _.each(images, function(src) { %>
+                    <li <%= typeof blank != 'undefined' ? 'class="blank"' : '' %>><img src="<%= src %>" /></li>
+                    <% }) %>
+                </ul>
             </div>
-        </script>
-    </div>
+        </div>
+    </script>
     
     <script src="javascripts/libs/jquery.js"></script>
 <!--     // <script src="javascripts/foundation/jquery.foundation.accordion.js"></script>
@@ -91,7 +84,7 @@
     <script src="javascripts/libs/underscore.js"></script>
     <script src="javascripts/libs/json2.js"></script>
     <script src="javascripts/libs/backbone.js"></script>
-    <script src="javascripts/libs/delivery.js"></script>
+    <script src="javascripts/libs/delivery.pool.js"></script>
 
     <script src="javascripts/pool.js"></script>
     
