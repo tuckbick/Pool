@@ -1,10 +1,34 @@
 var easyimg  = require('easyimage')
   , fs       = require('fs')
   , path     = require('path')
-  , mime     = require('mime');
+  , mime     = require('mime')
+  , queue    = require('../queue');
 
 var IMG_DIR = 'public/images/uploads/';
 
+
+
+
+var job = function(req, res, done) {
+  var self = this;
+
+  var size = req.params.size
+    , filename = req.params.image
+    , orig_path = IMG_DIR + 'orig/' + filename
+    , img_path = IMG_DIR + size + '/' + filename
+
+  easyimg.rescrop({
+      src: orig_path, dst:img_path,
+      width: size, height: size,
+      fill: true
+
+    }, function() {
+
+      serve(res, img_path);
+      done();
+    }
+  );
+}
 
 function serve(res, img_uri) {
   fs.readFile( img_uri, function( err, img ) {
@@ -21,6 +45,10 @@ function serve(res, img_uri) {
   });
 }
 
+
+
+
+
 exports.index = function(req, res) {
 
   var img_path = IMG_DIR + req.params.size + '/' + req.params.image;
@@ -31,19 +59,7 @@ exports.index = function(req, res) {
 
   } else {
 
-    var orig_path = IMG_DIR + 'orig/' + req.params.image
-      , size = req.params.size;
-
-    easyimg.rescrop({
-        src: orig_path, dst:img_path,
-        width: size, height: size,
-        fill: true
-
-      }, function() {
-
-        serve(res, img_path);
-      }
-    );
+    queue.addJob(job, req, res);
 
   }
 }

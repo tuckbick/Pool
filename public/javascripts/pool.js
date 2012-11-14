@@ -17,8 +17,43 @@ $(function(){
     },
 
     initialize: function(opt) {
-      this.$file_input = this.$el.find('#file-input');
-      this.$add_photos = this.$el.find('#add-photos');
+      var self = this;
+      self.$file_input = self.$el.find('#file-input');
+      self.$add_photos = self.$el.find('#add-photos');
+      self.$title = self.$el.find('.title');
+      self.$status = self.$el.find('.status');
+    },
+
+    setupUploadEvents: function() {
+      uploader.on('image.send', this.imageSend, this);
+      uploader.on('batch.start', this.batchStart, this);
+      uploader.on('batch.success', this.batchSuccess, this);
+    },
+
+    batchStart: function() {
+      this.$add_photos.hide();
+      this.$title.hide();
+      this.$status.show();
+    },
+
+    imageSend: function() {
+      this.updateName();
+    },
+
+    batchSuccess: function() {
+      var self = this;
+      self.updateName();
+      setTimeout(function() {
+        self.$status.hide();
+        self.$title.show();
+        self.updateName(' ');
+        self.$add_photos.show();
+      }, 2000);
+    },
+
+    updateName: function(text) {
+      console.log(this.$status, text || uploader.status);
+      this.$status.text(text || uploader.status);
     },
 
     openFileDialog: function() {
@@ -137,14 +172,21 @@ $(function(){
 
       // see if we are at the end of our queue
       if (self.current_file >= self.len) {
-        self.reset();
+        self.status = 'Done uploading ' + self.len + ' photos!';
+        self.trigger('batch.success');
+        setTimeout(function() {
+          self.reset();
+        }, 2000);
         return;
       }
 
       self.startUploads();
     });
 
-    this.reset();
+    self.reset();
+
+    // pub/sub implementation
+    self.actions = {};
   }
 
   Uploader.prototype.reset = function() {
@@ -163,6 +205,7 @@ $(function(){
         , file = self.file_list[self.current_file];
 
       self.status = 'Uploading photo ' + (self.current_file+1) + ' of ' + self.len;
+      self.trigger('image.send');
 
       delivery.send(file);
   }
@@ -181,7 +224,34 @@ $(function(){
     self.running = true;
 
     /* kick off the file queue */
+    self.trigger('batch.start');
     self.startUploads();
+  }
+
+
+  // pub/sub implementation
+  Uploader.prototype.on = function(action, fn, context) {
+    var self = this;
+    if (!self.actions[action]) {
+      self.actions[action] = [];
+    }
+    self.actions[action].push({
+      fn: fn,
+      ctx: context || this
+    });
+  }
+
+  Uploader.prototype.trigger = function(action) {
+    var self = this;
+    if (!self.actions[action])
+      return;
+    var evts = self.actions[action]
+      , len = evts ? evts.length : 0;
+    while (len--) {
+      var evt = evts[len];
+      evt.fn.call(evt.ctx);
+    }
+    return this;
   }
 
 
@@ -209,6 +279,8 @@ $(function(){
 
     delivery = new Delivery(socket);
     uploader = new Uploader();
+
+    Pool.header.setupUploadEvents();
 
     // Let the app know the socket is now available
     Pool.socketConnected.apply(Pool, arguments);

@@ -8,11 +8,20 @@ $img_padding: 0px;
 .top-bar {
     margin-bottom: $img_padding;
 
-    h1 {
+    .title {
         color: #E6E6E6;
         font-size: 24px;
         padding: 0 15px;
         line-height: 45px;
+    }
+
+    .status {
+        display: none;
+        color: #E6E6E6;
+        font-size: 20px;
+        padding: 0 15px;
+        line-height: 45px;
+        margin: 0;
     }
 }
 

@@ -13,7 +13,8 @@ var express  = require('express')
   , fs       = require('fs')
   , easyimg  = require('easyimage')
   , uuid     = require('node-uuid')
-  , mime     = require('mime');
+  , mime     = require('mime')
+  , queue    = require('./queue');
 
 
 var STATIC_DIR = 'public/'
@@ -134,8 +135,7 @@ function PoolDelivery(delivery) {
   this.delivery = delivery;
 }
 
-PoolDelivery.prototype.receiveSuccess = function(file) {
-
+var job = function(file, done) {
   var extension = file.name.substr(file.name.lastIndexOf('.'),file.name.length),
       new_filename = uuid.v4() + extension,
       file_path = STATIC_DIR + UPLOAD_DIR + ORIG_DIR + new_filename;
@@ -153,10 +153,18 @@ PoolDelivery.prototype.receiveSuccess = function(file) {
         console.log('Could not fix image orientation.');
       }
 
+      // advance the process queue
+      done();
+
       // announce a new image to all clients
       io.sockets.emit('image.new', new_filename);
     });
   });
+}
+
+PoolDelivery.prototype.receiveSuccess = function(file) {
+
+  queue.addJob(job, file);
 }
 
 
