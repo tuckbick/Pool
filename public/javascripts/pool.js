@@ -2,6 +2,13 @@ $(function(){
 
 
 
+
+
+
+  /**
+   **  HEADER VIEW
+   **/
+
   var HeaderView = Backbone.View.extend({
 
     events: {
@@ -15,7 +22,7 @@ $(function(){
     },
 
     openFileDialog: function() {
-      if (this.p.delivery === false) return;
+      if (delivery === false) return;
       this.$file_input.trigger('click');
     },
 
@@ -27,115 +34,186 @@ $(function(){
 
 
 
+
+
+
+  /**
+   **  IMAGES LIST VIEW
+   **/
+
   var ImagesView = Backbone.View.extend({
 
-    template: _.template($('#images-template').html()),
+    list_template: _.template($('#images-template').html()),
+    item_template: _.template($('#image-template').html()),
 
     render: function() {
-      var html = this.template(this.data);
-      this.p.$el.append(html);
+      var self = this
+        , size = self.options.thumb_size;
+
+      var items = _.map(self.data.images, function(filename) {
+        return self.item_template({ size: size, filename: filename })
+      });
+
+      var html = self.list_template({
+        items: items.join('')
+      });
+      self.p.$el.append(html);
     },
 
-    addNew: function(path) {
-      $('#images-list').append('<li><img src="'+path+'" /></li>');
+    addNew: function(file_name) {
+      var html = this.item_template({ size: this.options.thumb_size, filename: file_name })
+      $('#images-list').append(html);
     }
   });
 
 
+
+
+
+
+  /**
+   **  APP VIEW
+   **/
 
   var PoolApp = Backbone.View.extend({
 
     initialize: function() {
       var self = this;
 
-      this.$templates = $('#templates');
+      var thumb_size = self.getThumbSize();
 
-      this.header = new HeaderView({ el: this.$el.find('#header') });
-      this.header.p = this;
-      this.loading = new Backbone.View({ el: this.$el.find('#loading') });
-      this.images = new ImagesView();
-      this.images.p = this;
+      self.$templates = $('#templates');
 
-      socket.emit('init.images', null, _.bind(this.renderImages, this));
+      self.header = new HeaderView({ el: self.$el.find('#header') });
+      self.header.p = self;
+      self.loading = new Backbone.View({ el: self.$el.find('#loading') });
+      self.images = new ImagesView({ thumb_size: thumb_size });
+      self.images.p = self;
+    },
 
-      socket.on('announce.image',function(path){
-        self.images.addNew(path);
+    socketConnected: function() {
+      var self = this;
+
+      socket.emit('images', function() {
+        self.renderImages.apply(self, arguments);
       });
 
-      this.render();
+      socket.on('image.new',function(path){
+        self.images.addNew(path);
+      });
     },
 
     readImages: function(e) {
-
-      Uploader.uploadFiles(e.target.files, this.header);
-
-      // fr.onloadstart = function(e) {
-      //   self.header.fileStart.call(self.header, e);
-      // }
-      // fr.onprogress = function(e) {
-      //   self.header.fileProgress.call(self.header, e);
-      // }
-      // fr.onloadend = function(e) {
-      //   self.header.fileEnd.call(self.header, e);
-      // }
-    },
-
-    render: function() {
-      this.header.render();
+      uploader.uploadImages(e.target.files, this.header);
     },
 
     renderImages: function(data) {
       this.images.data = data;
       this.images.render();
       this.loading.remove();
+    },
+
+    // TODO: thumb size depends on device resolution ( pixel density * width )
+    getThumbSize: function() {
+      return 160;
     }
   });
 
 
 
-  var Uploader = (function() {
 
-    var uploadRunning = false;
 
-    var uploadFiles = function(files) {
 
-      var file_list = [];
-      for (var i = 0; i < files.length; i += 1) {
-        file_list.push(files.item(i));
-      }
+  /**
+   **  UPLOADER UTILITY
+   **/
 
-      if (uploadRunning) return;
-      uploadRunning = true;
+  function Uploader() {
+    var self = this;
 
-      startUploads(0, file_list);
-    }
+    delivery.on('send.success', function(file) {
 
-    var startUploads = function(i, file_list) {
+      self.current_file += 1;
 
-      // see if we are at the end of the file list
-      if (i >= file_list.length) {
-        uploadRunning = false;
+      // see if we are at the end of our queue
+      if (self.current_file >= self.len) {
+        self.reset();
         return;
       }
 
-      var file = file_list[i];
-      var fr = delivery.send(file).reader;
+      self.startUploads();
+    });
 
-      fr.onloadend = function() {
-        i += 1;
-        startUploads(i, file_list);
-      }
+    this.reset();
+  }
+
+  Uploader.prototype.reset = function() {
+    var self = this;
+
+    self.running = false;
+    self.current_file = 0;
+    self.status = '';
+    self.file_list = [];
+    self.len = 0;
+  }
+
+  Uploader.prototype.startUploads = function() {
+
+      var self = this
+        , file = self.file_list[self.current_file];
+
+      self.status = 'Uploading photo ' + (self.current_file+1) + ' of ' + self.len;
+
+      delivery.send(file);
+  }
+
+  Uploader.prototype.uploadImages = function(files) {
+    var self = this
+      , len = files.length
+      , i;
+
+    for (i = 0; i < len; i += 1) {
+      self.file_list.push(files.item(i));
     }
+    self.len = len;
 
-    return {
-      uploadFiles: uploadFiles
-    }
-  })()
+    if (self.running) return;
+    self.running = true;
+
+    /* kick off the file queue */
+    self.startUploads();
+  }
 
 
 
-  var socket = io.connect(),
-      delivery = new Delivery(socket);
+
+
+
+  /**
+   **  APP INITIALIZING
+   **/
+
+  // kick off app
   window.Pool = new PoolApp({ el: $('#content') });
+
+  // request a socket connection
+  var socket = io.connect()
+    , delivery
+    , uploader;
+
+  socket.on('connect', function() {
+
+    // make sure we aren't always calling socketConnected if the app reconnects
+    if (socket.connected) return;
+    socket.connected = true;
+
+    delivery = new Delivery(socket);
+    uploader = new Uploader();
+
+    // Let the app know the socket is now available
+    Pool.socketConnected.apply(Pool, arguments);
+
+  });
+
 
 });

@@ -1,0 +1,18 @@
+CACHE MANIFEST
+
+NETWORK:
+/socket.io/socket.io.js
+/socket.io/1/
+
+CACHE:
+/
+/stylesheets/style.css
+/javascripts/foundation/modernizr.foundation.js
+/javascripts/libs/jquery.js
+/javascripts/libs/json2.js
+/javascripts/libs/underscore.js
+/javascripts/libs/delivery.pool.js
+/javascripts/libs/backbone.js
+/javascripts/pool.js
+/images/loading.gif
+/image

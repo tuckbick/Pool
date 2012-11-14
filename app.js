@@ -5,18 +5,24 @@
 
 var express  = require('express')
   , routes   = require('./routes')
-  , user     = require('./routes/user')
+  , image    = require('./routes/image')
   , http     = require('http')
   , path     = require('path')
   , socketio = require('socket.io')
   , dl       = require('delivery/lib/delivery.server')
   , fs       = require('fs')
   , easyimg  = require('easyimage')
-  , uuid     = require('node-uuid');
+  , uuid     = require('node-uuid')
+  , mime     = require('mime');
 
 
+var STATIC_DIR = 'public/'
+  , UPLOAD_DIR = 'images/uploads/'
+  , ORIG_DIR   = 'orig/'
+  , IMAGE_DIR  = 'image'
+  , SCRIPT_DIR = __dirname + '/';
 
-
+var ORIG_PATH  = STATIC_DIR + UPLOAD_DIR + ORIG_DIR;
 
 
 // Config
@@ -32,6 +38,7 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
+  // app.use(express.static(path.join(__dirname, 'public'), { maxAge: 1209600000 })); // 86400000 1 day; 1209600000 14 days
   app.use(express.static(path.join(__dirname, 'public')));
 });
 
@@ -42,16 +49,23 @@ app.configure('development', function(){
 
 
 
-// Routes
+RegExp.escape = function(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+};
+
+
+/* Routes */
+
+// app.get('/cache.manifest', function(req, res){
+//   fs.readFile('./cache.manifest', function(error, content) {
+//     res.header('Content-Type', 'text/cache-manifest');
+//     res.end(content);
+//   })
+// });
 
 app.get('/', routes.index);
-// app.get('/users', user.list);
+app.get('/i/:size/:image', image.index);
 
-
-
-
-
-// Http
 
 var server = http.createServer(app);
 
@@ -60,54 +74,11 @@ server.listen(app.get('port'), function(){
 });
 
 
-var STATIC_DIR = 'public/',
-    UPLOAD_DIR = 'images/uploads/',
-    ORIG_DIR = UPLOAD_DIR + 'orig/',
-    THUMB_DIR = UPLOAD_DIR + 'thumb/',
-    SCRIPT_DIR = __dirname + '/';
-
-
-
-// API
-
-var socket_api = {
-
-  'init.images': function(nil, fn) {
-    var data = {
-      images: []
-    }
-    fs.readdir( STATIC_DIR + THUMB_DIR, function(err, files) {
-      for (var i = 0; i < files.length; i+=1 ) {
-        files[i] = THUMB_DIR + files[i];
-      }
-      data.images = files;
-      fn(data);
-    })
-  }
-}
-
-var delivery_api = {
-
-  'receive.success': function(socket, file) {
-    var extension = file.name.substr(file.name.lastIndexOf('.'),file.name.length),
-        new_filename = uuid.v4() + extension,
-        write_path = STATIC_DIR + ORIG_DIR + new_filename;
-    fs.writeFile( write_path, file.buffer, function(err){
-      if (err) {
-        console.log('File could not be saved.');
-      } else {
-        generateThumbnail(new_filename, function() {
-          io.sockets.emit('announce.image', THUMB_DIR + new_filename);
-        });
-      };
-    });
-  }
-}
 
 
 
 
-// Images
+// Socket
 
 easyimg.fixOrientation = function(image_path, callback) {
 
@@ -116,47 +87,17 @@ easyimg.fixOrientation = function(image_path, callback) {
     // check if orientation is correct
     var orientation = parseInt(stdout);
     if (orientation === 1) {
-      easyimg.info(image_path, callback);
+      callback();
       return;
     }
 
     // auto orient
     var imcmd = 'mogrify -auto-orient ' + image_path;
-    easyimg.exec(imcmd, function(err, stdout, stderr) {
-      if (err) return callback(err);
-      easyimg.info(image_path, callback);
-    });
+    easyimg.exec(imcmd, callback);
   })
 }
 
-var generateThumbnail = function(name, callback) {
 
-  var orig_path = SCRIPT_DIR + STATIC_DIR + ORIG_DIR + name;
-  var thumb_path = SCRIPT_DIR + STATIC_DIR + THUMB_DIR + name;
-
-  easyimg.fixOrientation( orig_path, function() {
-
-    easyimg.rescrop({
-        src: orig_path, dst:thumb_path,
-        width:200, height:200,
-        fill: true
-      }, callback
-    );
-  });
-
-  // easyimg.rescrop(
-  //   {
-  //     src: orig_path, dst:thumb_path,
-  //     width:200, height:200,
-  //     fill: true
-  //   },
-  //   function(err, stdout, stderr) {
-  //       if (err) throw err;
-
-  //       easyimg.fixOrientation( thumb_path, callback );
-  //   }
-  // );
-}
 
 
 
@@ -167,18 +108,81 @@ var io = socketio.listen(server, {
   // 'transports' : ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']
   // 'transports' : ['htmlfile', 'xhr-polling', 'jsonp-polling']
 });
+io.set('log level', 1);
 
-io.sockets.on('connection', function (socket) {
 
-  for (var action in socket_api) {
-    socket.on( action, socket_api[action] );
-  }
+io.sockets.on('connection', function(socket) {
 
-  var delivery = dl.listen(socket);
-  for (var action in delivery_api) {
-    delivery.on( action, function() {
-      return delivery_api[action].apply(null, [socket].concat(Array.prototype.slice.call(arguments)));
-    })
-  }
+  var client = new PoolClient(socket)
+    , delivery = dl.listen(socket)
+    , store = new PoolDelivery(delivery);
+
+  delivery.on('receive.success', store.receiveSuccess);
 
 });
+
+
+
+
+
+
+  /**
+   **  DELIVERY CLIENT
+   **/
+
+function PoolDelivery(delivery) {
+  this.delivery = delivery;
+}
+
+PoolDelivery.prototype.receiveSuccess = function(file) {
+
+  var extension = file.name.substr(file.name.lastIndexOf('.'),file.name.length),
+      new_filename = uuid.v4() + extension,
+      file_path = STATIC_DIR + UPLOAD_DIR + ORIG_DIR + new_filename;
+
+  // write the image to the file system
+  fs.writeFile( file_path, file.buffer, function(err){
+    if (err) {
+      console.log('File could not be saved.');
+      return;
+    }
+
+    // fix the image orientation
+    easyimg.fixOrientation( file_path, function(err) {
+      if (err) {
+        console.log('Could not fix image orientation.');
+      }
+
+      // announce a new image to all clients
+      io.sockets.emit('image.new', new_filename);
+    });
+  });
+}
+
+
+
+
+
+
+  /**
+   **  POOL CLIENT
+   **/
+
+function PoolClient(socket) {
+  var self = this;
+
+  self.socket = socket;
+
+  // send client a list of images
+  self.socket.on('images', function() {
+    self.getPhotos.apply(self, arguments);
+  });
+}
+
+PoolClient.prototype.getPhotos = function(reply) {
+
+  fs.readdir( ORIG_PATH, function(err, files) {
+    reply({ images: files });
+  })
+}
+

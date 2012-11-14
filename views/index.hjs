@@ -58,12 +58,14 @@
         <div class="row" id="images">
             <div class="column">
                 <ul class="block-grid eight-up mobile-five-up" id="images-list">
-                    <% _.each(images, function(src) { %>
-                    <li <%= typeof blank != 'undefined' ? 'class="blank"' : '' %>><img src="<%= src %>" /></li>
-                    <% }) %>
+                    <%= items %>
                 </ul>
             </div>
         </div>
+    </script>
+
+    <script id="image-template" type="text/template">
+        <li><img src="/i/<%= size + '/' + filename %>" /></li>
     </script>
     
     <script src="javascripts/libs/jquery.js"></script>
@@ -84,7 +86,7 @@
     <script src="javascripts/libs/underscore.js"></script>
     <script src="javascripts/libs/json2.js"></script>
     <script src="javascripts/libs/backbone.js"></script>
-    <script src="javascripts/libs/delivery.pool.js"></script>
+    <script src="javascripts/libs/delivery.js"></script>
 
     <script src="javascripts/pool.js"></script>
     
