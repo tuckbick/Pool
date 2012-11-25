@@ -2,83 +2,94 @@ $base: 11.25px;
 $img_padding: 0px;
 
 .hidden {
-    display: none;
+	display: none;
+}
+
+// OVERRIDES
+.top-bar ul > li.name {
+	background: #222;
+}
+.top-bar ul > li.name h1 {
+	line-height: 45px;
 }
 
 .top-bar {
-    margin-bottom: $img_padding;
-
-    .title {
-        color: #E6E6E6;
-        font-size: 24px;
-        padding: 0 15px;
-        line-height: 45px;
-    }
-
-    .status {
-        display: none;
-        color: #E6E6E6;
-        font-size: 20px;
-        padding: 0 15px;
-        line-height: 45px;
-        margin: 0;
-    }
-}
-
-.bar-btn-large {
-    color: #E6E6E6;
-    background: none;
-    border: 0;
-    height: 45px;
-    padding: 0 20px;
-    font-size: 14px;
-
-    &:hover {
-        background-color: #000;
-        color: #FFF;
-    }
-}
-
-@media only screen and (max-width: 768px) {
-    .top-bar {
-        margin-bottom: $img_padding;
-
-        ul li.has-button {
-            padding: 0;
-        }
-    }
+	.title {
+		color: #E6E6E6;
+		font-size: 24px;
+		padding: 0 15px;
+	}
+	.status {
+		display: none;
+		color: #E6E6E6;
+		font-size: 20px;
+		padding: 0 15px;
+		line-height: 45px;
+		margin: 0;
+	}
 }
 
 #loading .columns {
-    text-align: center;
-    padding: $base*4 0;
+	text-align: center;
+	padding: $base*4 0;
 }
 
 #images .column {
-    padding: 0 8px;
-    width: 100%;
+	padding: 0 8px;
+	width: 100%;
 }
 
-#loading, #images {
-    padding-top: 3.214em;
+#images-list li {
+	background: url(/images/loading_sml.gif) center center no-repeat;
 }
 
 .block-grid {
-    &.one-up, .two-up, &.three-up, &.four-up, &.five-up, &.six-up, &.seven-up, &.eight-up, &.nine-up, &.ten-up, &.eleven-up, &.twelve-up {
-        li { padding: 0; }
-    }
+	&.one-up, .two-up, &.three-up, &.four-up, &.five-up, &.six-up, &.seven-up, &.eight-up, &.nine-up, &.ten-up, &.eleven-up, &.twelve-up {
+		li { padding: 0; }
+	}
 }
 .block-grid img {
-    display: block;
-    width: 200px;
-    height: auto;
+	display: block;
+	width: 200px;
+	height: auto;
 }
 
 
 // We aren't saving any bandwidth, but at least it looks nice.
 @media only screen and (-moz-min-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
-    #loading img {
-        height: 64px;
-        width: 64px;
-    }
+	#loading img {
+		height: 64px;
+		width: 64px;
+	}
+}
+
+
+
+// mobile
+@media only screen and (max-width: 480px) {
+	#images-list>li {
+		width: 16.66667%;
+		&:nth-child(3n+1) { clear: none; }
+		&:nth-child(4n+1) { clear: none; }
+		&:nth-child(8n+1) { clear: none; }
+		&:nth-child(6n+1) { clear: both; }
+	}
+}
+@media only screen and (max-width: 320px) {
+	#images-list>li {
+		width: 25%;
+		&:nth-child(3n+1) { clear: none; }
+		&:nth-child(6n+1) { clear: none; }
+		&:nth-child(8n+1) { clear: none; }
+		&:nth-child(4n+1) { clear: both; }
+	}
+}
+@media only screen and (max-width: 240px) {
+	#images-list>li {
+		width: 33.33334%;
+		&:nth-child(4n+1) { clear: none; }
+		&:nth-child(6n+1) { clear: none; }
+		&:nth-child(8n+1) { clear: none; }
+		&:nth-child(3n+1) { clear: both; }
+	}
 }

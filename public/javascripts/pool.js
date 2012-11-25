@@ -52,7 +52,6 @@ $(function(){
     },
 
     updateName: function(text) {
-      console.log(this.$status, text || uploader.status);
       this.$status.text(text || uploader.status);
     },
 
