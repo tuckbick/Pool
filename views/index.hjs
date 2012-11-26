@@ -56,20 +56,19 @@
 				<img src="images/loading.gif" />
 			</div>
 		</div>
-	</div>
-
-	<script id="images-template" type="text/template">
 		<div class="row" id="images">
 			<div class="column">
-				<ul class="block-grid eight-up" id="images-list">
-					<%= items %>
-				</ul>
+				<ul class="block-grid eight-up" id="images-list"></ul>
 			</div>
 		</div>
-	</script>
+	</div>
 
 	<script id="image-template" type="text/template">
-		<li><img src="/i/<%= size + '/' + filename %>" /></li>
+		<li><img src="<%= src %>" /></li>
+	</script>
+
+	<script id="loading-template" type="text/template">
+		<li><img src="images/loading_sml_img.gif" /></li>
 	</script>
 	
 	<script src="javascripts/libs/jquery.js"></script>

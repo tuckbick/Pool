@@ -72,31 +72,54 @@ $(function(){
 
 
   /**
+   **  THUMB IMAGE VIEW
+   **/
+
+  var ThumbImageView = Backbone.View.extend({
+
+    loadingTemplate: $('#loading-template').html(),
+    imageTemplate: _.template($('#image-template').html()),
+
+    load: function() {
+      var self = this
+        , img = new Image();
+      img.src = '/i/' + self.options.size + '/' + self.options.src;
+      img.onload = function() {
+        var html = self.imageTemplate({ size: self.options.size, src: img.src });
+        self.$el.replaceWith(html);
+      }
+    },
+
+    render: function() {
+      var $el = $(this.loadingTemplate);
+      this.setElement($el);
+      this.load();
+      return this;
+    }
+  });
+
+
+
+
+
+
+  /**
    **  IMAGES LIST VIEW
    **/
 
   var ImagesView = Backbone.View.extend({
 
-    list_template: _.template($('#images-template').html()),
-    item_template: _.template($('#image-template').html()),
-
-    render: function() {
-      var self = this
-        , size = self.options.thumb_size;
-
-      var items = _.map(self.data.images, function(filename) {
-        return self.item_template({ size: size, filename: filename })
-      });
-
-      var html = self.list_template({
-        items: items.join('')
-      });
-      self.p.$el.append(html);
+    initialize: function() {
+      this.list = this.$el.find('#images-list');
     },
 
-    addNew: function(file_name) {
-      var html = this.item_template({ size: this.options.thumb_size, filename: file_name })
-      $('#images-list').append(html);
+    render: function() {
+      _.each(this.data.images, this.addOne, this);
+    },
+
+    addOne: function(src) {
+      var thumb = new ThumbImageView({ size: this.options.thumb_size, src: src });
+      this.list.append( thumb.render().el );
     }
   });
 
@@ -121,7 +144,7 @@ $(function(){
       self.header = new HeaderView({ el: self.$el.find('#header') });
       self.header.p = self;
       self.loading = new Backbone.View({ el: self.$el.find('#loading') });
-      self.images = new ImagesView({ thumb_size: thumb_size });
+      self.images = new ImagesView({ el: self.$el.find('#images'), thumb_size: thumb_size });
       self.images.p = self;
     },
 
@@ -133,7 +156,7 @@ $(function(){
       });
 
       socket.on('image.new',function(path){
-        self.images.addNew(path);
+        self.images.addOne(path);
       });
     },
 
