@@ -2,9 +2,33 @@ var easyimg  = require('easyimage')
   , fs       = require('fs')
   , path     = require('path')
   , mime     = require('mime')
-  , queue    = require('../queue');
+  , queue    = require('../src/queue');
 
 var IMG_DIR = 'public/images/uploads/';
+
+
+
+
+
+
+easyimg.fixOrientation = function(image_path, callback) {
+
+  easyimg.exec('identify -format %[EXIF:Orientation] ' + image_path, function(err, stdout, stderr) {
+
+    // check if orientation is correct
+    var orientation = parseInt(stdout);
+    if (orientation === 1) {
+      callback();
+      return;
+    }
+
+    // auto orient
+    var imcmd = 'mogrify -auto-orient ' + image_path;
+    easyimg.exec(imcmd, callback);
+  })
+}
+
+
 
 
 
@@ -44,6 +68,7 @@ function serve(res, img_uri) {
 
   });
 }
+
 
 
 
