@@ -30,6 +30,23 @@ easyimg.fixOrientation = function(image_path, callback) {
 
 
 
+var copyFileSync = function(srcFile, destFile) {
+  var BUF_LENGTH, buff, bytesRead, fdr, fdw, pos;
+  BUF_LENGTH = 64 * 1024;
+  buff = new Buffer(BUF_LENGTH);
+  fdr = fs.openSync(srcFile, 'r');
+  fdw = fs.openSync(destFile, 'w');
+  bytesRead = 1;
+  pos = 0;
+  while (bytesRead > 0) {
+    bytesRead = fs.readSync(fdr, buff, 0, BUF_LENGTH, pos);
+    fs.writeSync(fdw, buff, 0, bytesRead);
+    pos += bytesRead;
+  }
+  fs.closeSync(fdr);
+  return fs.closeSync(fdw);
+};
+
 
 
 
@@ -41,17 +58,64 @@ var job = function(req, res, done) {
     , orig_path = IMG_DIR + 'orig/' + filename
     , img_path = IMG_DIR + size + '/' + filename
 
-  easyimg.rescrop({
-      src: orig_path, dst:img_path,
-      width: size, height: size,
-      fill: true
+  if (size === 'thumb') {
+    size = 160;
 
-    }, function() {
+    // resize and crop to a small image
+    easyimg.rescrop({
+        src: orig_path, dst:img_path,
+        width: size, height: size,
+        fill: true
 
-      serve(res, img_path);
-      done();
-    }
-  );
+      }, function() {
+
+        serve(res, img_path);
+        done();
+      }
+    );
+    return;
+  }
+
+  if (size === 'large') {
+    size = 1136;
+
+    easyimg.info(orig_path, function(err, info, stderr) {
+
+      // if the image is already small enough, copy it, and serve it up
+      if (info.width <= size && size >= info.height) {
+        copyFileSync(orig_path, img_path);
+        serve(res, img_path);
+        done();
+        return;
+      };
+
+      // resize to a large image, not cropping
+      easyimg.resize({
+          src: orig_path, dst:img_path,
+          width: size, height: size,
+
+        }, function() {
+
+          serve(res, img_path);
+          done();
+        }
+      );
+
+    })
+
+    // // resize to a large image, not cropping
+    // easyimg.resize({
+    //     src: orig_path, dst:img_path,
+    //     width: size, height: size,
+
+    //   }, function() {
+
+    //     serve(res, img_path);
+    //     done();
+    //   }
+    // );
+    return;
+  }
 }
 
 function serve(res, img_uri) {
@@ -76,15 +140,37 @@ function serve(res, img_uri) {
 
 exports.index = function(req, res) {
 
-  var img_path = IMG_DIR + req.params.size + '/' + req.params.image;
+  var dir_path = IMG_DIR + req.params.size
+    , img_path = dir_path + '/' + req.params.image;
 
-  if (path.existsSync( img_path )) {
 
-    serve( res, img_path );
+  // see if image directory exists
+  path.exists( dir_path, function(dir_exists) {
 
-  } else {
+    // if it doesn't exist, create it
+    if (!dir_exists) {
+      fs.mkdir( dir_path, null, function() {
 
-    queue.addJob(job, req, res);
+        // obviously the image doesn't exists, so queue it up
+        queue.addJob(job, req, res);
 
-  }
+      });
+
+    } else { // the dir exists
+
+      // does the image exist?
+      path.exists( img_path, function(img_exists) {
+
+        // if it does, serve it up
+        if (img_exists) {
+          serve( res, img_path );
+
+        } else { // if it doesn't, queue it up
+          queue.addJob(job, req, res);
+        }
+
+      })
+    }
+  })
+
 }

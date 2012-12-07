@@ -1,8 +1,12 @@
+@import "foundicons.scss";
+@import "compass/css3/transition";
+@import "compass/css3/opacity";
+
 $base: 11.25px;
 $img_padding: 0px;
 
-.hidden {
-	display: none;
+body, html {
+	height: 100%;
 }
 
 // OVERRIDES
@@ -14,16 +18,27 @@ $img_padding: 0px;
 }
 
 .top-bar {
+	.name {
+		position: relative;
+	}
 	.title {
 		font-size: 24px;
 		padding: 0 15px;
 	}
 	.status {
-		display: none;
 		font-size: 20px;
 		padding: 0 15px;
 		line-height: 45px;
 		margin: 0;
+		width: 800px;
+	}
+	.name > *, .toggle-topbar {
+		position: absolute;
+		@include opacity(0);
+		@include single-transition(opacity, 0.25s, ease-in-out);
+	}
+	.show {
+		@include opacity(1);
 	}
 }
 
@@ -55,6 +70,56 @@ $img_padding: 0px;
 	width: 200px;
 	height: auto;
 }
+
+
+
+#darkroom {
+	background-color: #000000;
+	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: -9999;
+	overflow: hidden;
+	@include opacity(0);
+	@include single-transition(opacity, 0.25s, linear);
+
+	&.show {
+		@include opacity(1);
+	}
+	.stage {
+		position: relative;
+		text-align: center;
+		height: 100%;
+		width: 100%;
+	}
+	img {
+		max-height: 100%;
+		max-width: 100%;
+		vertical-align: middle;
+	}
+	#controls {
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		margin: 0;
+		background-color: rgba(0,0,0,0.75);
+
+		li {
+			width: (100%/3);
+			float: left;
+			list-style: none;
+			text-align: center;
+		}
+		a {
+			line-height: 1.5em;
+			font-size: 2em;
+		}
+	}
+}
+
 
 
 // We aren't saving any bandwidth, but at least it looks nice.

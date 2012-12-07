@@ -15,7 +15,7 @@
 	<meta name="apple-mobile-web-app-title" content="Pool">
 	<meta http-equiv="cleartype" content="on">
 
-	<title>Welcome to <%= title %></title>
+	<title></title>
 
 	<link rel="stylesheet" href="stylesheets/style.css">
 	<!-- // <script src="http://192.168.2.130:8081/target/target-script-min.js#anonymous"></script> -->
@@ -33,17 +33,17 @@
 				<nav class="top-bar">
 					<ul>
 						<li class="name">
-							<h1 class="title"><%= title %></h1>
+							<h1 class="title show"><%= title %></h1>
 							<h2 class="status"></h2>
 						</li>
-						<li class="toggle-topbar"><a href="#"></a></li>
+						<li class="toggle-topbar show"><a href="#"></a></li>
 					</ul>
 					<section>
 						<ul class="right">
 							<li class="divider"></li>
 							<li>
 								<a id="add-photos" href="#">Add Photos</a>
-								<input id="file-input" class="hidden" type="file" name="file-photos[]" accept="image/*" multiple />
+								<input id="file-input" class="hide" type="file" name="file-photos[]" accept="image/*" multiple />
 							</li>
 						</ul>
 					</section>
@@ -60,6 +60,16 @@
 				<ul class="block-grid eight-up" id="photos-list"></ul>
 			</div>
 		</div>
+		<div id="darkroom">
+			<div class="stage">
+				<img src />
+			</div>
+			<ul id="controls">
+				<li><a href="#">&nbsp;<!-- <i class="foundicon-left-arrow"></i> --></a></li>
+				<li><a href="#" class="go-home"><i class="foundicon-home"></i></a></li>
+				<li><a href="#">&nbsp;<!-- <i class="foundicon-right-arrow"></i> --></a></li>
+			</ul>
+		</div>
 	</div>
 
 	<div id="templates" style="display: none;">
@@ -72,10 +82,9 @@
 	</div>
 	
 	<script src="/socket.io/socket.io.js"></script>
+	<script src="javascripts/libs/fastclick.js"></script>
 	<script src="javascripts/libs/jquery.min.js"></script>
 	<!-- <script src="javascripts/foundation/jquery.cookie.js"></script>
-	// <script src="javascripts/foundation/jquery.event.move.js"></script>
-	// <script src="javascripts/foundation/jquery.event.swipe.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.accordion.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.alerts.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.buttons.js"></script>
@@ -85,11 +94,13 @@
 	// <script src="javascripts/foundation/jquery.foundation.magellan.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.mediaQueryToggle.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.navigation.js"></script>
-	// <script src="javascripts/foundation/jquery.foundation.orbit.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.reveal.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.tabs.js"></script>
 	// <script src="javascripts/foundation/jquery.foundation.tooltips.js"></script>
 	// <script src="javascripts/foundation/jquery.placeholder.js"></script> -->
+	<script src="javascripts/foundation/jquery.event.move.js"></script>
+	<script src="javascripts/foundation/jquery.event.swipe.js"></script>
+	<script src="javascripts/foundation/jquery.foundation.orbit.js"></script>
 	<script src="javascripts/foundation/jquery.foundation.topbar.js"></script>
 	<script src="javascripts/foundation/app.js"></script>
 	<script src="javascripts/util.js"></script>
@@ -99,6 +110,7 @@
 	<script src="javascripts/templates.js"></script>
 	<script src="javascripts/header.js"></script>
 	<script src="javascripts/loading.js"></script>
+	<script src="javascripts/darkroom.js"></script>
 	<script src="javascripts/photos.js"></script>
 	<script src="javascripts/app.js"></script>
 	<script src="javascripts/main.js"></script>

@@ -14,7 +14,18 @@ function Photos(parent) {
 
 	// Events
 	$.subscribe('photos.reset', this.reset);
-	$.subscribe('photos.new', this.addAll)
+	$.subscribe('photos.new', this.addAll);
+	$.subscribe('upload.end', parent.uploader.reset.bind(parent.uploader));
+	this.$ul.on('click', 'li', this.handleClick);
+}
+
+Photos.prototype.handleClick = function(e) {
+	var $li = $(e.currentTarget)
+	  , photo = $li.data('photo');
+	
+	if (!photo) return;
+
+	app.darkroom.showPhoto(photo);
 }
 
 Photos.prototype.reset = function(e, filenames) {
@@ -25,7 +36,10 @@ Photos.prototype.reset = function(e, filenames) {
 	this.addAll(filenames);
 }
 
-Photos.prototype.addAll = function(filenames) {
+Photos.prototype.addAll = function(e, filenames) {
+	if (e instanceof Array) {
+		filenames = e;
+	}
 	filenames.forEach(this.addOne);
 }
 
@@ -39,6 +53,7 @@ Photos.prototype.addOne = function(filename) {
 function Photo(filename) {
 	this.filename = filename;
 	this.thumb = new Thumbnail(filename);
+	this.thumb.photo = this;
 	this.thumb.load();
 }
 
@@ -51,7 +66,7 @@ function Thumbnail(filename) {
 }
 
 Thumbnail.prototype.placeholder = $t['thumb-loading'].render();
-Thumbnail.prototype.size = 160;
+Thumbnail.prototype.size = 'thumb';
 Thumbnail.prototype.src = function() {
 	return '/i/' + this.size + '/' + this.filename;
 }
@@ -72,5 +87,6 @@ Thumbnail.prototype.renderPlaceholder = function() {
 Thumbnail.prototype.showImage = function(data) {
 	var $li = $($t['thumb'].render(data));
 	this.$el.replaceWith($li);
+	$li.data('photo', this.photo);
 	this.$el = $li;
 }

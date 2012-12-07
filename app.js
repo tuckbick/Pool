@@ -9,9 +9,7 @@ var express  = require('express')
   , http     = require('http')
   , path     = require('path')
   , easyimg  = require('easyimage')
-  , uuid     = require('node-uuid')
   , mime     = require('mime')
-  , queue    = require('./src/queue')
   , pool     = require('./src/pool');
 
 
@@ -51,8 +49,11 @@ app.configure('development', function(){
 //   })
 // });
 
-app.get('/', routes.index);
 app.get('/i/:size/:image', image.index);
+app.get('/', routes.index);
+app.get('/:page', function(req, res) {
+    res.redirect('/');
+});
 
 
 var server = http.createServer(app)
@@ -71,66 +72,3 @@ server.listen(app.get('port'), function(){
  **/
 
 pool.init(server);
-
-
-
-
-
-	/**
-	 **  DELIVERY CLIENT
-	 **/
-
-// function PoolDelivery(delivery) {
-//   this.delivery = delivery;
-// }
-
-// var job = function(file, done) {
-//   var extension = file.name.substr(file.name.lastIndexOf('.'),file.name.length),
-//       new_filename = uuid.v4() + extension,
-//       file_path = STATIC_DIR + UPLOAD_DIR + ORIG_DIR + new_filename;
-
-//   // write the image to the file system
-//   fs.writeFile( file_path, file.buffer, function(err){
-//     if (err) {
-//       console.log('File could not be saved.');
-//       return;
-//     }
-
-//     // fix the image orientation
-//     easyimg.fixOrientation( file_path, function(err) {
-//       if (err) {
-//         console.log('Could not fix image orientation.');
-//       }
-
-//       // advance the process queue
-//       done();
-
-//       // announce a new image to all clients
-//       io.sockets.emit('image.new', new_filename);
-//     });
-//   });
-// }
-
-// PoolDelivery.prototype.receiveSuccess = function(file) {
-
-//   queue.addJob(job, file);
-// }
-
-// function PoolClient(socket) {
-//   var self = this;
-
-//   self.socket = socket;
-
-//   // send client a list of images
-//   self.socket.on('images', function() {
-//     self.getPhotos.apply(self, arguments);
-//   });
-// }
-
-// PoolClient.prototype.getPhotos = function(reply) {
-
-//   fs.readdir( ORIG_PATH, function(err, files) {
-//     reply({ images: files });
-//   })
-// }
-
