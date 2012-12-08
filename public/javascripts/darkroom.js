@@ -24,7 +24,9 @@ function Darkroom(parent) {
         e.preventDefault();
     });
 
+    KeyboardJS.on('esc', self.controls.handleBack);
 }
+
 Darkroom.prototype.size = 'large';
 Darkroom.prototype.fitImage = function() {
     this.$stage.css({
@@ -53,10 +55,11 @@ Darkroom.prototype.toggle = function() {
 
 Darkroom.prototype.show = function() {
     if (this.visible) return;
-    history.pushState({ page: 'darkroom', data: {} }, document.title = app.title + ' - Darkroom', location.href + 'darkroom');
+    history.pushState({ page: 'darkroom', data: {} }, document.title = app.title + ' - Darkroom', app.href + 'darkroom');
     this.controls.registerActivity();
     this.toggle();
 }
+
 Darkroom.prototype.showPhoto = function(photo) {
     this.show();
     this.fitImage();
@@ -105,6 +108,7 @@ Controls.prototype.registerActivity = function(e) {
     clearTimeout(this.activityTimeout);
     this.activityTimeout = setTimeout(this.hide.bind(this), 4000);
 }
+
 Controls.prototype.toggle = function() {
     this.showing ? this.hide() : this.registerActivity();
 }

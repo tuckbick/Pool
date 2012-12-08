@@ -7,10 +7,11 @@ function App() {
 	var self = this;
 
 	// set the page title
-	self.title = document.title = 'Pool';
+	self.title = 'Pool';
+	self.href = document.location.href
 
 	// Set the History
-	history.replaceState({ page: 'home', data: {} }, self.title, document.location.href);
+	history.replaceState({ page: 'home', data: {} }, document.title = self.title, self.href);
 
 	// Root Element
 	self.$el = $('#content');
