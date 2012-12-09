@@ -8,7 +8,7 @@ function Darkroom(parent) {
 
     // Root Element
     self.$el = parent.$el.find('#darkroom');
-    self.$stage = self.$el.find('.stage');
+    self.$stage = self.$el.find('#stage');
     self.$img = self.$stage.find('img');
 
     // UI
@@ -16,6 +16,7 @@ function Darkroom(parent) {
 
     var throttle;
     $(window).on('resize', function(e) {
+        if (!this.visible) return;
         clearTimeout(throttle);
         setTimeout(self.fitImage.bind(self, e), 200);
     });
@@ -23,8 +24,6 @@ function Darkroom(parent) {
     self.$el.on('touchmove', function(e) {
         e.preventDefault();
     });
-
-    KeyboardJS.on('esc', self.controls.handleBack);
 }
 
 Darkroom.prototype.size = 'large';
@@ -32,7 +31,7 @@ Darkroom.prototype.fitImage = function() {
     this.$stage.css({
         lineHeight: window.innerHeight + 'px'
     });
-    this.$img.css({
+    this.current_photo.large.$el.css({
         maxWidth: window.innerWidth,
         maxHeight: window.innerHeight
     });
@@ -62,8 +61,13 @@ Darkroom.prototype.show = function() {
 
 Darkroom.prototype.showPhoto = function(photo) {
     this.show();
+    if (!photo.large) {
+        photo.large = new Large(photo);
+    } else {
+        photo.large.load();
+    }
+    this.current_photo = photo;
     this.fitImage();
-    this.$img.attr('src', '/i/' + this.size + '/' + photo.filename);
 }
 
 
@@ -78,10 +82,17 @@ function Controls(parent) {
 
     // Root Element
     self.$el = parent.$el.find('#controls');
+    self.$left = self.$el.find('.go-left');
     self.$home = self.$el.find('.go-home');
+    self.$right = self.$el.find('.go-right');
+
+    // Always execute these methods in this context
+    bindAll(this, 'handleLeft', 'handleBack', 'handleRight');
 
     // Events
-    self.$home.on('click', this.handleBack.bind(this));
+    self.$left.on('click', this.handleLeft);
+    self.$home.on('click', this.handleBack);
+    self.$right.on('click', this.handleRight);
 
     // 'popstate' occurs when we press the browser or the UI back button
     window.addEventListener('popstate', function(e) {
@@ -94,11 +105,35 @@ function Controls(parent) {
     // Set up 'sleep' functionality
     parent.$el.on('mousemove touchmove', this.registerActivity.bind(this));
     parent.$el.on('click', this.toggle.bind(this));
+
+    self.$el.on('click', function(e) {
+        e.stopPropagation();
+    });
+
+    KeyboardJS.on('left', self.handleLeft);
+    KeyboardJS.on('esc', self.handleBack);
+    KeyboardJS.on('right', self.handleRight);
+}
+
+Controls.prototype.handleLeft= function(e) {
+    e.preventDefault();
+    var len = app.photos.list.length
+      , id = app.darkroom.current_photo.id - 1;
+    id = (id + len) % app.photos.list.length;
+    app.darkroom.showPhoto(app.photos.list[id]);
 }
 
 Controls.prototype.handleBack = function(e) {
-    history.back();
     e.preventDefault();
+    history.back();
+}
+
+Controls.prototype.handleRight = function(e) {
+    e.preventDefault();
+    var len = app.photos.list.length
+      , id = app.darkroom.current_photo.id + 1;
+    id = (id + len) % app.photos.list.length;
+    app.darkroom.showPhoto(app.photos.list[id]);
 }
 
 Controls.prototype.registerActivity = function(e) {
@@ -119,4 +154,42 @@ Controls.prototype.show = function() {
 Controls.prototype.hide = function() {
     this.showing = false;
     this.$el.stop(true, false).animate({ bottom: -this.$el.height() }, 100, 'linear');
+}
+
+
+
+
+//
+// Darkroom Controls
+// -----------------------
+
+function Large(photo) {
+    this.photo = photo;
+    this.src = this.src();
+    this.load();
+}
+
+Large.prototype.template = $t['large'];
+
+Large.prototype.size = 'large';
+Large.prototype.src = function() {
+    return '/i/' + this.size + '/' + this.photo.filename;
+}
+
+Large.prototype.load = function() {
+    if (!this.$el) {
+        this.render({ id: this.photo.id, src: 'images/loading_sml_img.gif' });
+        var self = this
+          , img = new Image();
+        img.src = this.src;
+        img.onload = self.render.bind(self, { id: this.photo.id, src: img.src });
+    } else {
+        this.render({ id: this.photo.id, src: this.src });
+    }
+}
+
+Large.prototype.render = function(data) {
+    var html = this.template.render(data);
+    this.$el = $(html);
+    app.darkroom.$stage.html(this.$el);
 }

@@ -36,13 +36,13 @@
 							<h1 class="title show"><%= title %></h1>
 							<h2 class="status"></h2>
 						</li>
-						<li class="toggle-topbar show"><a href="#"></a></li>
+						<li class="toggle-topbar show"><a href=""></a></li>
 					</ul>
 					<section>
 						<ul class="right">
 							<li class="divider"></li>
 							<li>
-								<a id="add-photos" href="#">Add Photos</a>
+								<a id="add-photos" href="">Add Photos</a>
 								<input id="file-input" class="hide" type="file" name="file-photos[]" accept="image/*" multiple />
 							</li>
 						</ul>
@@ -61,23 +61,21 @@
 			</div>
 		</div>
 		<div id="darkroom">
-			<div class="stage">
-				<img src />
-			</div>
+			<div id="stage"></div>
 			<ul id="controls">
-				<li><a href="#">&nbsp;<!-- <i class="foundicon-left-arrow"></i> --></a></li>
-				<li><a href="#" class="go-home"><i class="foundicon-home"></i></a></li>
-				<li><a href="#">&nbsp;<!-- <i class="foundicon-right-arrow"></i> --></a></li>
+				<li><a href="" class="go-left"><i class="foundicon-left-arrow"></i></a></li>
+				<li><a href="" class="go-home"><i class="foundicon-home"></i></a></li>
+				<li><a href="" class="go-right"><i class="foundicon-right-arrow"></i></a></li>
 			</ul>
 		</div>
 	</div>
 
 	<div id="templates" style="display: none;">
-		<script id="thumb-loading" type="text/template">
-			<li><img src="images/loading_sml_img.gif" /></li>
+		<script id="large" type="text/template">
+			<img data-id="{{ id }}" src="{{ src }}" />
 		</script>
 		<script id="thumb" type="text/template">
-			<li><img src="{{ src }}" /></li>
+			<li data-id="{{ id }}"><img src="{{ src }}" /></li>
 		</script>
 	</div>
 	

@@ -89,7 +89,7 @@ body, html {
 	&.show {
 		@include opacity(1);
 	}
-	.stage {
+	#stage {
 		position: relative;
 		text-align: center;
 		height: 100%;

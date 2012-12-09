@@ -25,18 +25,16 @@ function Header(parent) {
 	$.subscribe('upload.end', this.setDoneStatus);
 }
 
-Header.prototype.openDialog = function() {
+Header.prototype.openDialog = function(e) {
+	e.preventDefault();
 	this.$file_input.click();
 }
 
 Header.prototype.onFileChange = function(e) {
-	this.uploadImages(this.$file_input.get(0).files);
+	e.preventDefault();
+	app.uploader.uploadImages(this.$file_input.get(0).files);
 	this.$file_input.val('');
 	this.closeTopBar();
-}
-
-Header.prototype.uploadImages = function(files) {
-	app.uploader.uploadImages(files);
 }
 
 Header.prototype.toggleMenuButton = function(show) {
