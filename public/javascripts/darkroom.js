@@ -16,7 +16,7 @@ function Darkroom(parent) {
 
     var throttle;
     $(window).on('resize', function(e) {
-        if (!this.visible) return;
+        if (!self.visible) return;
         clearTimeout(throttle);
         setTimeout(self.fitImage.bind(self, e), 200);
     });
