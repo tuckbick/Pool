@@ -10,6 +10,8 @@ var express  = require('express')
   , path     = require('path')
   , easyimg  = require('easyimage')
   , mime     = require('mime')
+  , fs       = require('fs')
+  , hogan    = require('hogan.js')
   , pool     = require('./src/pool');
 
 
@@ -63,6 +65,31 @@ server.listen(app.get('port'), function(){
 
 
 
+
+/**
+ **  Template Compilation
+ **/
+
+function trim(str) {
+    return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+}
+
+var templateDir = './templates/',
+    template,
+    templateKey,
+    result = 'var $t = {};';
+
+fs.readdirSync(templateDir).forEach(function(templateFile) {
+
+    template = trim(fs.readFileSync(templateDir + templateFile, 'utf8'));
+    templateKey = templateFile.substr(0, templateFile.lastIndexOf('.'));
+
+    result += '$t["'+templateKey+'"] = ';
+    result += 'new Hogan.Template(' + hogan.compile(template, {asString: true}) + ');'
+
+});
+
+fs.writeFile('./public/javascripts/templates.js', result, 'utf8');
 
 
 
