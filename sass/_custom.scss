@@ -108,12 +108,11 @@ body, html {
 		background-color: rgba(0,0,0,0.75);
 
 		li {
-			width: (100%/3);
+			width: (100%/4);
 			float: left;
 			list-style: none;
 			text-align: center;
-		}
-		a {
+			color: #2BA6CB;
 			line-height: 1.5em;
 			font-size: 2em;
 		}

@@ -82,17 +82,21 @@ function Controls(parent) {
 
     // Root Element
     self.$el = parent.$el.find('#controls');
-    self.$left = self.$el.find('.go-left');
-    self.$home = self.$el.find('.go-home');
-    self.$right = self.$el.find('.go-right');
+    self.$play = self.$el.find('#go-play');
+    self.$stop = self.$el.find('#go-stop');
+    self.$left = self.$el.find('#go-left');
+    self.$home = self.$el.find('#go-home');
+    self.$right = self.$el.find('#go-right');
 
     // Always execute these methods in this context
-    bindAll(this, 'handleLeft', 'handleBack', 'handleRight');
+    bindAll(this, 'handleLeft', 'handleBack', 'handleRight', 'handlePlay', 'handleStop');
 
     // Events
-    self.$left.on('click', this.handleLeft);
-    self.$home.on('click', this.handleBack);
-    self.$right.on('click', this.handleRight);
+    self.$el.on('click', '#go-left', this.handleLeft)
+            .on('click', '#go-play', this.handlePlay)
+            .on('click', '#go-stop', this.handleStop)
+            .on('click', '#go-home', this.handleBack)
+            .on('click', '#go-right', this.handleRight);
 
     // 'popstate' occurs when we press the browser or the UI back button
     window.addEventListener('popstate', function(e) {
@@ -115,28 +119,37 @@ function Controls(parent) {
     KeyboardJS.on('right', self.handleRight);
 }
 
-Controls.prototype.handleLeft= function(e) {
-    e.preventDefault();
+Controls.prototype.handleLeft= function() {
     var len = app.photos.list.length
       , id = app.darkroom.current_photo.id - 1;
     id = (id + len) % app.photos.list.length;
     app.darkroom.showPhoto(app.photos.list[id]);
 }
 
-Controls.prototype.handleBack = function(e) {
-    e.preventDefault();
+Controls.prototype.handlePlay = function() {
+    this.playInterval = setInterval(this.handleRight, 10000);
+    this.$play.toggleClass('hide');
+    this.$stop.toggleClass('hide');
+}
+
+Controls.prototype.handleStop = function() {
+    clearInterval(this.playInterval);
+    this.$play.toggleClass('hide');
+    this.$stop.toggleClass('hide');
+}
+
+Controls.prototype.handleBack = function() {
     history.back();
 }
 
-Controls.prototype.handleRight = function(e) {
-    e.preventDefault();
+Controls.prototype.handleRight = function() {
     var len = app.photos.list.length
       , id = app.darkroom.current_photo.id + 1;
     id = (id + len) % app.photos.list.length;
     app.darkroom.showPhoto(app.photos.list[id]);
 }
 
-Controls.prototype.registerActivity = function(e) {
+Controls.prototype.registerActivity = function() {
     if (!this.showing) {
         this.show();
     }
