@@ -56,10 +56,6 @@ body, html {
 	padding: 0;
 }
 
-#photos-list li {
-	background: url(/images/loading_sml.gif) center center no-repeat;
-}
-
 .block-grid {
 	&.one-up, .two-up, &.three-up, &.four-up, &.five-up, &.six-up, &.seven-up, &.eight-up, &.nine-up, &.ten-up, &.eleven-up, &.twelve-up {
 		li { padding: 0; }

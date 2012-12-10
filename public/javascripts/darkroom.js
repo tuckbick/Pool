@@ -191,7 +191,7 @@ Large.prototype.src = function() {
 
 Large.prototype.load = function() {
     if (!this.$el) {
-        this.render({ id: this.photo.id, src: 'images/loading_sml_img.gif' });
+        this.render({ id: this.photo.id, src: 'images/loading_black.gif' });
         var self = this
           , img = new Image();
         img.src = this.src;
