@@ -3,13 +3,16 @@
 // Loading Section
 // -----------------------
 
-function Loading(parent) {
+var Loading = Class.extend({
 
-    // Root Element
-    this.$el = parent.$el.find('#loading');
+	init: function(parent) {
 
-}
+		// Root Element
+		this.$el = parent.$el.find('#loading');
 
-Loading.prototype.hide = function() {
-    this.$el.hide();
-}
+	},
+
+	hide: function() {
+		this.$el.hide();
+	}
+});

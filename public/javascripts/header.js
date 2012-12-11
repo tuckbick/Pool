@@ -3,62 +3,66 @@
 // Header Section
 // -----------------------
 
-function Header(parent) {
+var Header = Class.extend({
 
-	// Root Element
-	this.$el = parent.$el.find('#header');
-	this.$topbar = this.$el.find('.top-bar');
-	this.$title = this.$topbar.find('.title');
-	this.$status = this.$topbar.find('.status');
-	this.$toggle_topbar = this.$topbar.find('.toggle-topbar');
-	this.$file_input = this.$topbar.find('#file-input');
+	init: function(parent) {
 
-	bindAll(this, 'openDialog', 'onFileChange', 'toggleTitle', 'setXferStatus', 'setDoneStatus');
+		// Root Element
+		this.$el = parent.$el.find('#header');
+		this.$topbar = this.$el.find('.top-bar');
+		this.$title = this.$topbar.find('.title');
+		this.$status = this.$topbar.find('.status');
+		this.$toggle_topbar = this.$topbar.find('.toggle-topbar');
+		this.$file_input = this.$topbar.find('#file-input');
 
-	// UI Events
-	this.$el.find('#add-photos').on('click', this.openDialog);
-	this.$file_input.on('change', this.onFileChange);
+		bindAll(this, 'openDialog', 'onFileChange', 'toggleTitle', 'setXferStatus', 'setDoneStatus');
 
-	// Status Events
-	$.subscribe('upload.start', this.toggleTitle);
-	$.subscribe('upload.xfer', this.setXferStatus);
-	$.subscribe('upload.end', this.setDoneStatus);
-}
+		// UI Events
+		this.$el.find('#add-photos').on('click', this.openDialog);
+		this.$file_input.on('change', this.onFileChange);
 
-Header.prototype.openDialog = function(e) {
-	e.preventDefault();
-	this.$file_input.click();
-}
+		// Status Events
+		$.subscribe('upload.start', this.toggleTitle);
+		$.subscribe('upload.xfer', this.setXferStatus);
+		$.subscribe('upload.end', this.setDoneStatus);
+	},
 
-Header.prototype.onFileChange = function(e) {
-	e.preventDefault();
-	app.uploader.uploadImages(this.$file_input.get(0).files);
-	this.$file_input.val('');
-	this.closeTopBar();
-}
+	openDialog: function(e) {
+		e.preventDefault();
+		this.$file_input.click();
+	},
 
-Header.prototype.toggleMenuButton = function(show) {
-	this.$toggle_topbar.toggleClass('hide', show);
-}
+	onFileChange: function(e) {
+		e.preventDefault();
+		app.uploader.uploadImages(this.$file_input.get(0).files);
+		this.$file_input.val('');
+		this.closeTopBar();
+	},
 
-Header.prototype.closeTopBar = function() {
-	if (this.$topbar.hasClass('expanded')) {
-		this.$toggle_topbar.trigger('click');
-	} 
-}
+	toggleMenuButton: function(show) {
+		this.$toggle_topbar.toggleClass('hide', show);
+	},
 
-Header.prototype.toggleTitle = function(e, up) {
-	var showTitle = !this.$title.hasClass('show') && !up.running;
-	this.$title.toggleClass('show', showTitle);
-	this.$status.toggleClass('show', !showTitle);
-	this.toggleMenuButton(!showTitle);
-}
+	closeTopBar: function() {
+		if (this.$topbar.hasClass('expanded')) {
+			this.$toggle_topbar.trigger('click');
+		} 
+	},
 
-Header.prototype.setXferStatus = function(e, up) {
-	this.$status.text('Uploading photo ' + (up.current_file_idx+1) + ' of ' + up.queue_length);
-}
+	toggleTitle: function(e, up) {
+		var showTitle = !this.$title.hasClass('show') && !up.running;
+		this.$title.toggleClass('show', showTitle);
+		this.$status.toggleClass('show', !showTitle);
+		this.toggleMenuButton(!showTitle);
+	},
 
-Header.prototype.setDoneStatus = function(e, up) {
-	this.$status.text('Done uploading ' + up.queue_length + ' photos!');
-	setTimeout(this.toggleTitle.bind(this, null, up), 2000);
-}
+	setXferStatus: function(e, up) {
+		this.$status.text('Uploading photo ' + (up.current_file_idx+1) + ' of ' + up.queue_length);
+	},
+
+	setDoneStatus: function(e, up) {
+		this.$status.text('Done uploading ' + up.queue_length + ' photos!');
+		setTimeout(this.toggleTitle.bind(this, null, up), 2000);
+	}
+
+});
