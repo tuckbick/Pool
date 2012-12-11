@@ -3,7 +3,7 @@
   "description": "pool your photos",
   "version": "0.0.1",
   "private": true,
-  "engine": "node 0.6.19",
+  "engine": "node 0.8.15",
   "dependencies": {
     "express": "3.x",
     "delivery": "*",
@@ -12,6 +12,7 @@
     "mime": "1.2.7",
     "hogan.js": "*",
     "ejs": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "node-minify": "*"
   }
 }

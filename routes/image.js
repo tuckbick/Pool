@@ -145,7 +145,7 @@ exports.index = function(req, res) {
 
 
   // see if image directory exists
-  path.exists( dir_path, function(dir_exists) {
+  fs.exists( dir_path, function(dir_exists) {
 
     // if it doesn't exist, create it
     if (!dir_exists) {
@@ -159,7 +159,7 @@ exports.index = function(req, res) {
     } else { // the dir exists
 
       // does the image exist?
-      path.exists( img_path, function(img_exists) {
+      fs.exists( img_path, function(img_exists) {
 
         // if it does, serve it up
         if (img_exists) {

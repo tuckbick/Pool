@@ -12,6 +12,7 @@ var express  = require('express')
   , mime     = require('mime')
   , fs       = require('fs')
   , hogan    = require('hogan.js')
+  , compress = require('node-minify')
   , pool     = require('./src/pool');
 
 
@@ -95,7 +96,47 @@ fs.writeFile('./public/javascripts/templates.js', result, 'utf8');
 
 
 /**
+ **  JS minification
+ **/
+
+compress.minify({
+    type: 'uglifyjs',
+    fileIn: [
+        'public/javascripts/foundation/modernizr.foundation.js'
+      , 'public/javascripts/libs/fastclick.js'
+      , 'public/javascripts/libs/keyboard.min.js'
+      , 'public/javascripts/libs/jquery.min.js'
+      , 'public/javascripts/foundation/jquery.foundation.topbar.js'
+      , 'public/javascripts/foundation/app.js'
+      , 'public/javascripts/util.js'
+      , 'public/javascripts/libs/delivery.js'
+      , 'public/javascripts/uploader.js'
+      , 'public/javascripts/templates.js'
+      , 'public/javascripts/header.js'
+      , 'public/javascripts/loading.js'
+      , 'public/javascripts/darkroom.js'
+      , 'public/javascripts/photos.js'
+      , 'public/javascripts/app.js'
+      , 'public/javascripts/main.js'
+    ],
+    fileOut: 'public/javascripts/app.min.js',
+    callback: function(err){
+        if (err) {
+          console.log(err);
+          process.exit();
+          return;
+        }
+        startApp();
+    }
+});
+
+
+
+
+/**
  **  App Initialization
  **/
 
-pool.init(server);
+function startApp() {
+  pool.init(server);
+}
